@@ -46,9 +46,9 @@ services:
   minio:
     container_name: minio
     image: minio/minio:latest
-    # environment:
-    #   - MINIO_ROOT_USER=minio
-    #   - MINIO_ROOT_PASSWORD=minio
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
     entrypoint: ["minio", "server", "--address", "0.0.0.0:9000", "--console-address", "0.0.0.0:9001", "/data"]
     volumes:
       - "minio:/data"

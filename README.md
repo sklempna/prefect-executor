@@ -1,6 +1,6 @@
 ## TODO:
 
-- set minio access key and secret key from .env in docker compose file
+- write custom dockerfile so you don't have to do those nasty installs in set-up-executor.sh
 
 - logguru
 - precommit
