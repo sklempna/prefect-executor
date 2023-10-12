@@ -1,0 +1,5 @@
+prefect==2.13.4
+pandas==2.0.3
+pyodbc==4.0.39
+omegaconf==2.3.0
+minio==7.1.17
