@@ -11,22 +11,6 @@ services:
     profiles:
       - debug
 
-  ### Pipeline Database
-  # tracking-db:
-  #   container_name: tracking-db
-  #   image: postgres
-  #   restart: always
-  #   environment:
-  #     POSTGRES_PASSWORD: example
-  #     POSTGRES_USER: admin
-  #     POSTGRES_DB: default
-  #   volumes:
-  #     - type: bind
-  #       source: ./config/tracker_db_config
-  #       target: /docker-entrypoint-initdb.d
-  #   ports:
-  #     - 5432:5432
-
   ### Prefect Database
   prefect-db:
     container_name: prefect-db
@@ -40,7 +24,6 @@ services:
       - 5432
     volumes:
       - db:/var/lib/postgresql/data
-    #profiles: ["server"]
 
   ### MinIO for flow storage
   minio:
@@ -49,12 +32,21 @@ services:
     environment:
       - MINIO_ROOT_USER=${MINIO_ROOT_USER}
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
-    entrypoint: ["minio", "server", "--address", "0.0.0.0:9000", "--console-address", "0.0.0.0:9001", "/data"]
+    entrypoint:
+      [
+        "minio",
+        "server",
+        "--address",
+        "0.0.0.0:${MINIO_PORT}",
+        "--console-address",
+        "0.0.0.0:${MINIO_UI_PORT}",
+        "/data",
+      ]
     volumes:
       - "minio:/data"
     ports:
-      - 9000:9000
-      - 9001:9001
+      - ${MINIO_PORT}:${MINIO_PORT}
+      - ${MINIO_UI_PORT}:${MINIO_UI_PORT}
     profiles: ["minio"]
 
   ### Prefect Server API and UI
@@ -80,28 +72,7 @@ services:
       - 4200:4200
     depends_on:
       - prefect-db
-    #profiles: ["server"]
 
-  # ## Prefect Agent
-  # agent:
-  #   image: prefecthq/prefect:2.13.4-python3.11
-  #   restart: always
-  #   entrypoint:
-  #     [
-  #       "/opt/prefect/entrypoint.sh",
-  #       "prefect",
-  #       "agent",
-  #       "start",
-  #       "-q",
-  #       "YOUR_WORK_QUEUE_NAME",
-  #     ]
-  #   environment:
-  #     - PREFECT_API_URL=http://server:4200/api
-  #       Use PREFECT_API_KEY if connecting the agent to Prefect Cloud
-  #     - PREFECT_API_KEY=YOUR_API_KEY
-  #profiles: ["agent"]
-
-  
   prefect-executor:
     container_name: prefect-executor
     image: prefecthq/prefect:2.13.4-python3.11
@@ -119,32 +90,6 @@ services:
     #     - PREFECT_API_KEY=YOUR_API_KEY
     depends_on:
       - prefect-server
-
-  ### Prefect CLI
-  # cli:
-  #   image: prefecthq/prefect:2.13.4-python3.11
-  #   stdin_open: true
-  #   tty: true
-  #   working_dir: "/root/flows"
-  #   volumes:
-  #     - ".:/root/flows"
-  #   environment:
-  #     - PREFECT_API_URL=http://server:4200/api
-  #   #       Use PREFECT_API_KEY to use the CLI to interact with Prefect Cloud
-  #   #     - PREFECT_API_KEY=YOUR_API_KEY
-  # worker:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.worker
-  #   stdin_open: true
-  #   tty: true
-  #   working_dir: "/root/flows"
-  #   volumes:
-  #     - ".:/root/flows"
-  #   environment:
-  #     - PREFECT_API_URL=http://server:4200/api
-    #       Use PREFECT_API_KEY to use the CLI to interact with Prefect Cloud
-    #     - PREFECT_API_KEY=YOUR_API_KEY
 
 volumes:
   prefect:

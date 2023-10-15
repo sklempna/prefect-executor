@@ -1,5 +1,7 @@
 ## TODO:
 
+- make ports of services configurable via .env
+
 - write custom dockerfile so you don't have to do those nasty installs in set-up-executor.sh
 
 - logguru
